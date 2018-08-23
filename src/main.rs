@@ -7,7 +7,10 @@ use docopt::Docopt;
 use colored::*;
 
 const USAGE: &'static str = "
-Bouncer.
+bender-bouncer
+
+The bouncer verifies wether one or more files are valid blend files and returns 
+basic information like frame count, resolution etc.
 
 Usage:
   bouncer <blendfiles>... [--json] [--dry-run]
