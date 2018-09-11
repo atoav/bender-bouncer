@@ -24,7 +24,7 @@
 //! ```
 //! 
 //! ## Documentation
-//! To view the documentation on the various functions run
+//! To view the documentation on the different Functions execute  
 //! ```ignore
 //! cargo doc --no-deps --open
 //! ```

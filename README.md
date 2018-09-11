@@ -26,7 +26,7 @@ cargo update
 ```
 
 ### Documentation
-To view the documentation on the various functions run
+To view the documentation on the different Functions execute
 ```rust
 cargo doc --no-deps --open
 ```
