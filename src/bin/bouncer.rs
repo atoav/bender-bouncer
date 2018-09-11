@@ -12,7 +12,7 @@ const USAGE: &'static str = "
 bender-bouncer
 
 The bouncer verifies wether one or more files are valid blend files and returns 
-basic information like frame count, resolution etc.
+basic information like scene name, start and endframe.
 
 Usage:
   bouncer <blendfiles>...
