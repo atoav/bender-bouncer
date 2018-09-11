@@ -15,11 +15,15 @@ doesn't need a blender executable. This is also much faster than opening the
 
 ### Library Usage
 The library can be loaded via public git mirror:
-   bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
+```rust
+bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
+```
 
 ### Documentation
 To view the documentation on the various functions run
-    cargo doc --no-deps --open
+```rust
+cargo doc --no-deps --open
+```
 
 ### Installation (CLI tool)
 1. Make sure you have rust and cargo installed (easiest with [rustup](http://rustup.rs))

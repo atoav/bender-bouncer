@@ -13,11 +13,15 @@
 //!
 //! ## Library Usage
 //! The library can be loaded via public git mirror:
-//!    bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
+//! ```ignore
+//! bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
+//! ```
 //! 
 //! ## Documentation
 //! To view the documentation on the various functions run
-//!     cargo doc --no-deps --open
+//! ```ignore
+//! cargo doc --no-deps --open
+//! ```
 //!
 //! ## Installation (CLI tool)
 //! 1. Make sure you have rust and cargo installed (easiest with [rustup](http://rustup.rs))
