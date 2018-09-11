@@ -167,7 +167,8 @@ pub fn parse_scenes<S>(path: S) -> GenResult<Scenes> where S: Into<String>{
         // Find Scenename
         buf = vec![0u8; 64];
         f.read_exact(&mut buf)?;
-        let scenename = str::from_utf8(&buf)?;
+        let mut scenename = str::from_utf8(&buf)?;
+        scenename = scenename.trim_matches(char::from(0));
         scenes.insert(scenename.to_string(), FrameRange{start, end});
 
         // Read for the next round
