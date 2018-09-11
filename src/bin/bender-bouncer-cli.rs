@@ -38,12 +38,14 @@ fn main() {
         // Check if we are dealing with a valid blend file
         let valid = match check_blend(&name[..]){
             Ok(()) => {
-                let message = format!("{}", name.bold().on_green());
+                let success = format!(" ✔ {} ", name).bold().on_green();
+                let message = format!("{}", success);
                 println!("{}", message);
                 true
             },
-            Err(e) => {
-                let message = format!("{} is not a blend file -> {}", name.bold().on_red(), e);
+            Err(_e) => {
+                let error = format!(" ✖ {} ", name).bold().on_red();
+                let message = format!("{} seems not to be a blend file", error);
                 println!("{}", message);
                 false
             },
@@ -53,7 +55,9 @@ fn main() {
             match parse_scenes(&name[..]){
                 Ok(s) => {
                     for (name, frames) in s.iter(){
-                        println!("Scene Name:   {}\nStartframe:   {}\nEndframe:     {}\n", name, frames.start, frames.end);
+                        let scenelabel = format!("{}   ", "Scene Name:".green());
+                        let framelabel = format!("{}  ", "Frame Range:".green());
+                        println!("{}{}\n{}{}-{} ({} in total)\n", scenelabel, name, framelabel, frames.start, frames.end, frames.count());
                     }
                 },
                 Err(e) => {
