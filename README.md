@@ -14,9 +14,15 @@ doesn't need a blender executable. This is also much faster than opening the
 - a small CLI tool called **bender-bouncer-cli**, that allows for manual or scripted checking
 
 ### Library Usage
-The library can be loaded via public git mirror:
+It can be loaded in a rust library via the public git mirror by putting this in your Cargo.toml:
 ```rust
+[dependencies]
 bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
+```
+To update run
+```rust
+cargo clean
+cargo update
 ```
 
 ### Documentation
