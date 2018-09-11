@@ -1,5 +1,5 @@
 [package]
-name = "bouncer"
+name = "bender_bouncer"
 version = "0.1.0"
 authors = ["David Huss <dh@widerstandzwecklos.at>"]
 
@@ -8,3 +8,5 @@ docopt = "1"
 serde = "1.0" # if you're using `derive(Deserialize)`
 serde_derive = "1.0" # if you're using `derive(Deserialize)`
 colored = "1.6"
+flate2 = "1.0"
+structure = "0.1"
