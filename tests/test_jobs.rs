@@ -75,4 +75,25 @@ mod frames{
         assert_eq!(250, end);
     }
 
+    #[test]
+    fn big_frame_number() {
+        let mut buf = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        buf.push("tests");
+        buf.push("resources");
+        buf.push("1048574frames_2.79.blend");
+        let path = buf.clone().into_os_string().into_string().expect("Unwrapping pathbuf basic failed");
+        let data = match parse_scenes(&path[..]){
+            Ok(s) => Some(s),
+            Err(e) => {
+                println!("{}", e);
+                None
+            }
+        }.expect("Unwrapping of parsed_scenes() failed");
+        println!("{:?}", data);
+        let start = data.get("Scene").expect("Failed to unwrap FrameRange.start").start;
+        let end = data.get("Scene").expect("Failed to unwrap FrameRange.end").end;
+        assert_eq!(0, start);
+        assert_eq!(1048574, end);
+    }
+
 }
