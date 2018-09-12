@@ -46,7 +46,7 @@ fn main() {
             Err(_e) => {
                 let error = format!(" ✖ {} ", name).bold().on_red();
                 let errorlabel = "ERROR:".to_string().red();
-                let message = format!("{}\n    {}        this seems not to be a valid blend file", error, errorlabel);
+                let message = format!("{}\n    {}        this seems not to be a valid blend file\n", error, errorlabel);
                 println!("{}", message);
                 false
             },
