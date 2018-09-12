@@ -45,7 +45,8 @@ fn main() {
             },
             Err(_e) => {
                 let error = format!(" ✖ {} ", name).bold().on_red();
-                let message = format!("{} seems not to be a blend file", error);
+                let errorlabel = "ERROR:".to_string().red();
+                let message = format!("{}\n    {}        this seems not to be a valid blend file", error, errorlabel);
                 println!("{}", message);
                 false
             },
@@ -58,7 +59,7 @@ fn main() {
                         let versionlabel = format!("{}      ", "Version:".green());
                         let scenelabel = format!("{}   ", "Scene Name:".green());
                         let framelabel = format!("{}  ", "Frame Range:".green());
-                        println!("{}{}\n{}{}\n{}{}-{} ({} in total)\n", 
+                        println!("    {}{}\n    {}{}\n    {}{}-{} ({} in total)\n", 
                             versionlabel, data.version,
                             scenelabel, scenename, 
                             framelabel, data.frames.start, data.frames.end, data.frames.count());
