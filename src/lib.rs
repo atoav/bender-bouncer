@@ -132,100 +132,186 @@ pub fn parse_scenes<S>(path: S) -> GenResult<Scenes> where S: Into<String>{
     let mut version = str::from_utf8(&buf)?.to_string();
     version.insert_str(1, ".");
 
-
     // Go to 12th byte and read a buffer of 4 bytes
     f.seek(SeekFrom::Start(12))?;
     let mut utf8buf = vec![0u8; 4];
     f.read_exact(&mut utf8buf)?;
     let mut scenes = Scenes::new();
 
-    // Loop through the scenes
-    while str::from_utf8(&utf8buf)? == "REND"{
+    // Check if header is over
+    assert!(str::from_utf8(&utf8buf)? == "REND");
 
-        // 4 Bytes "size" integer describing the the
-        // Total length of data after the file-block-header
-        let mut buf = vec![0u8; 4];
-        f.read_exact(&mut buf)?;
-        let _file_block_header_size = match is_big_endian { 
-            true => {
-                let s = structure!(">i");
-                s.unpack(buf)?
-            },
-            false => {
-                let s = structure!("<i");
-                s.unpack(buf)?
-            }
-        };
+    // 4 Bytes "size" integer describing the the
+    // Total length of data after the file-block-header
+    let buf = nom(&mut f, 4)?;
+    let _file_block_header_size = unpack_i32(buf, is_big_endian);
 
-        // 4 or 8 Bytes pointer describing the old memory adress
-        // "where the structure was located when written to disk"
-        let mut buf = vec![0u8; match blender_head_size {
-            20 => 4,
-            _ => 8
-        }];
-        f.read_exact(&mut buf)?; // just skip it
+    // 4 or 8 Bytes pointer describing the old memory adress
+    // "where the structure was located when written to disk"
+    read_old_mem(&mut f, blender_head_size)?;
 
-        // 4 byte integer describing the SDNA index
-        let mut buf = vec![0u8; 4];
-        f.read_exact(&mut buf)?;
-        let _sdna_index = match is_big_endian { 
-            true => {
-                let s = structure!(">i");
-                s.unpack(buf)?.0
-            },
-            false => {
-                let s = structure!("<i");
-                s.unpack(buf)?.0
-            }
-        };
+    // 4 byte integer describing the SDNA index
+    let buf = nom(&mut f, 4)?;
+    let _sdna_index = unpack_i32(buf, is_big_endian);
 
-        // 4 byte integer describing the Number of structures located 
-        // in this file-block
-        let mut buf = vec![0u8; 4];
-        f.read_exact(&mut buf)?;
-        let _count = match is_big_endian { 
-            true => {
-                let s = structure!(">i");
-                s.unpack(buf)?.0
-            },
-            false => {
-                let s = structure!("<i");
-                s.unpack(buf)?.0
-            }
-        };
+    // 4 byte integer describing the Number of structures located 
+    // in this file-block
+    let buf = nom(&mut f, 4)?;
+    let _count = unpack_i32(buf, is_big_endian);
 
-        // Now find the rest
-        buf = vec![0u8; 8];
-        f.read_exact(&mut buf)?;
-        // Find Start and endframes
-        let (start, end) = match is_big_endian { 
-            true => {
-                let s = structure!(">2i");
-                s.unpack(buf)?
-            },
-            false => {
-                let s = structure!("<2i");
-                s.unpack(buf)?
-            }
-        };
+    // Now find the rest
+    let buf = nom(&mut f, 4)?;
+    let start = unpack_i32(buf, is_big_endian)?;
+    let mut buf = nom(&mut f, 4)?;
+    let end = unpack_i32(buf, is_big_endian)?;
 
-        // Find Scenename
-        buf = vec![0u8; 64];
-        f.read_exact(&mut buf)?;
-        // Try to create valid utf8 from it and trim all null chars
-        let mut scenename = str::from_utf8(&buf)?;
-        scenename = scenename.trim_matches(char::from(0));
-        // Create a Data struct and insert into scenes
-        scenes.insert(
-            scenename.to_string(), 
-            Data{
-                frames: FrameRange{start, end},
-                version: version.clone()
-            });
+    // Find Scenename
+    buf = vec![0u8; 64];
+    f.read_exact(&mut buf)?;
+    // Try to create valid utf8 from it and trim all null chars
+    let mut scenename = str::from_utf8(&buf)?;
+    scenename = scenename.trim_matches(char::from(0));
 
-        // Read for the next round
-        utf8buf = vec![0u8; 4];
-        f.read_exact(&mut utf8buf)?;
-    }
+    // Read for the next round
+    utf8buf = vec![0u8; 4];
+    f.read_exact(&mut utf8buf)?;
+
+    loop_blocks(f, is_big_endian, blender_head_size)?;
+
+    // Create a Data struct and insert into scenes
+    scenes.insert(
+        scenename.to_string(), 
+        Data{
+            frames: FrameRange{start, end},
+            version: version.clone()
+        });
     Ok(scenes)
+
+}
+
+
+
+fn nom(f: &mut File, bytes: usize) -> GenResult<Vec<u8>> {
+    let mut buf = vec![0u8; bytes];
+    f.read_exact(&mut buf)?;
+    Ok(buf)
+}
+
+fn nom_till(f: &mut File, bytes: usize, exitstring: &str) -> GenResult<Vec<u8>> {
+    let mut vector: Vec<u8> = Vec::new();
+    while let Ok(buf) = nom(f, bytes){
+        let found = match str::from_utf8(&buf){
+            Ok(s) => {
+                // manage if in dnablock
+                if s == exitstring { true } else { false }
+            },
+            Err(_e) => ( false )
+        };
+        if found { 
+            break 
+        } else { 
+            for b in buf {
+                vector.push(b); 
+            }
+        }
+    }
+    Ok(vector)
+}
+
+fn nom_after(f: &mut File, bytes: usize, exitstring: &str) -> GenResult<Vec<u8>> {
+    while let Ok(buf) = nom(f, bytes){
+        let found = match str::from_utf8(&buf){
+            Ok(s) => {
+                // manage if in dnablock
+                if s == exitstring { true } else { false }
+            },
+            Err(_e) => ( false )
+        };
+        if found { break }
+    }
+    nom(f, bytes)
+}
+
+fn unpack_i32(buf: Vec<u8>, is_big_endian: bool) -> GenResult<i32> {
+    let x = match is_big_endian { 
+        true => {
+            let s = structure!(">i");
+            s.unpack(buf)?.0
+        },
+        false => {
+            let s = structure!("<i");
+            s.unpack(buf)?.0
+        }
+    };
+    Ok(x)
+}
+
+fn read_old_mem(f: &mut File, blender_head_size: usize ) -> GenResult<()> {
+    let mut buf = vec![0u8; match blender_head_size {
+        20 => 4,
+        _ => 8
+    }];
+    f.read_exact(&mut buf)?; // just skip it
+    Ok(())
+}
+
+fn loop_blocks(mut f: File, is_big_endian: bool, blender_head_size: usize) -> GenResult<()>{
+    // nom till code "DNA1" and read 4 bytes after
+    let buf = nom_after(&mut f, 4, "DNA1")?;
+    let _blocksize = unpack_i32(buf, is_big_endian)?;
+    // Skip old pointer
+    read_old_mem(&mut f, blender_head_size)?;
+    // SDNA Index
+    let buf = nom(&mut f, 4)?;
+    let _sdna_index = unpack_i32(buf, is_big_endian)?;
+    // Count
+    let buf = nom(&mut f, 4)?;
+    let _count = unpack_i32(buf, is_big_endian)?;
+
+    nom_till(&mut f, 4, "NAME")?;
+    let buf = nom(&mut f, 4)?;
+    let _name_count = unpack_i32(buf, is_big_endian)?;
+    // let strrr = str::from_utf8(&buf)?;
+    // println!("There are {} names", name_count);
+
+    // Read names
+    let _buf = nom_till(&mut f, 4, "TYPE")?;
+    // let strrr = str::from_utf8(&_buf)?;
+    // for (i, s) in strrr.split("\0").enumerate() {
+    //     println!("{:<8} {}", i, s);
+    // }
+    let _ = nom(&mut f, 4)?;
+
+    let buf = nom(&mut f, 4)?;
+    let _type_count = unpack_i32(buf, is_big_endian)?;
+    // let strrr = str::from_utf8(&buf)?;
+    // println!("There are {} names", name_count);
+
+    // Read names
+    let buf = nom_till(&mut f, 4, "TLEN")?;
+    let strrr = str::from_utf8(&buf)?;
+    for (i, s) in strrr.split("\0").enumerate() {
+        if i == 145 || i == 2700{
+            println!("{:<8} {}", i, s);
+        }
+    }
+
+
+    
+
+
+
+
+
+    // while let Ok(buf) = nom(&mut f, 4){
+    //     match str::from_utf8(&buf){
+    //         Ok(s) => {
+    //             // manage if in dnablock
+    //             if !in_dna_block && s == "DNA1" { in_dna_block = true; }
+    //             if s == "ENDB"{ in_dna_block = false;}
+    //         },
+    //         Err(_e) => ()
+    //     }
+    // }
+    Ok(())
 }
