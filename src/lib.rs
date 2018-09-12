@@ -137,30 +137,62 @@ pub fn parse_scenes<S>(path: S) -> GenResult<Scenes> where S: Into<String>{
     f.seek(SeekFrom::Start(12))?;
     let mut utf8buf = vec![0u8; 4];
     f.read_exact(&mut utf8buf)?;
-    let mut blender_head_unread;
     let mut scenes = Scenes::new();
 
     // Loop through the scenes
     while str::from_utf8(&utf8buf)? == "REND"{
-        blender_head_unread = blender_head_size - 4;
-        // unpack struct here
+
+        // 4 Bytes "size" integer describing the the
+        // Total length of data after the file-block-header
         let mut buf = vec![0u8; 4];
         f.read_exact(&mut buf)?;
-        match is_big_endian { 
+        let _file_block_header_size = match is_big_endian { 
             true => {
                 let s = structure!(">i");
-                s.unpack(buf)?;
+                s.unpack(buf)?
             },
             false => {
                 let s = structure!("<i");
-                s.unpack(buf)?;
+                s.unpack(buf)?
             }
-        }
-        blender_head_unread -= 4;
+        };
 
-        // We don't care about the rest of the struct
-        buf = vec![0u8; blender_head_unread];
+        // 4 or 8 Bytes pointer describing the old memory adress
+        // "where the structure was located when written to disk"
+        let mut buf = vec![0u8; match blender_head_size {
+            20 => 4,
+            _ => 8
+        }];
+        f.read_exact(&mut buf)?; // just skip it
+
+        // 4 byte integer describing the SDNA index
+        let mut buf = vec![0u8; 4];
         f.read_exact(&mut buf)?;
+        let _sdna_index = match is_big_endian { 
+            true => {
+                let s = structure!(">i");
+                s.unpack(buf)?.0
+            },
+            false => {
+                let s = structure!("<i");
+                s.unpack(buf)?.0
+            }
+        };
+
+        // 4 byte integer describing the Number of structures located 
+        // in this file-block
+        let mut buf = vec![0u8; 4];
+        f.read_exact(&mut buf)?;
+        let _count = match is_big_endian { 
+            true => {
+                let s = structure!(">i");
+                s.unpack(buf)?.0
+            },
+            false => {
+                let s = structure!("<i");
+                s.unpack(buf)?.0
+            }
+        };
 
         // Now find the rest
         buf = vec![0u8; 8];
