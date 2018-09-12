@@ -54,10 +54,14 @@ fn main() {
         if valid {
             match parse_scenes(&name[..]){
                 Ok(s) => {
-                    for (name, frames) in s.iter(){
+                    for (scenename, data) in s.iter(){
+                        let versionlabel = format!("{}      ", "Version:".green());
                         let scenelabel = format!("{}   ", "Scene Name:".green());
                         let framelabel = format!("{}  ", "Frame Range:".green());
-                        println!("{}{}\n{}{}-{} ({} in total)\n", scenelabel, name, framelabel, frames.start, frames.end, frames.count());
+                        println!("{}{}\n{}{}\n{}{}-{} ({} in total)\n", 
+                            versionlabel, data.version,
+                            scenelabel, scenename, 
+                            framelabel, data.frames.start, data.frames.end, data.frames.count());
                     }
                 },
                 Err(e) => {

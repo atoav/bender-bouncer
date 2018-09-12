@@ -76,6 +76,13 @@ pub fn check_blend<S>(path: S) -> GenResult<()> where S: Into<String>{
     Ok(())
 }
 
+/// A Data Struct that holds a blend files data
+#[derive(Debug)]
+pub struct Data{
+    pub frames: FrameRange,
+    pub version: String
+}
+
 /// A FrameRange Struct that holds a start and a endframe
 #[derive(Debug)]
 pub struct FrameRange{
@@ -90,8 +97,8 @@ impl FrameRange{
     }
 }
 
-/// A HashMap-based Type to hold a Scene with Scene Name and FrameRange
-pub type Scenes = HashMap<String, FrameRange>;
+/// A HashMap-based Type to hold a Scene with Scene Name and Data
+pub type Scenes = HashMap<String, Data>;
 
 
 
@@ -118,10 +125,16 @@ pub fn parse_scenes<S>(path: S) -> GenResult<Scenes> where S: Into<String>{
     let blender_head_size = if buf[7] == 0x2d { 24 } else { 20 };
     let is_big_endian = buf[8] == 0x56;
 
-    // Go to 12th byte
-    f.seek(SeekFrom::Start(12))?;
+    // Go to 9th byte and read a buffer of 3 bytes for version
+    f.seek(SeekFrom::Start(9))?;
+    let mut buf = vec![0u8; 3];
+    f.read_exact(&mut buf)?;
+    let mut version = str::from_utf8(&buf)?.to_string();
+    version.insert_str(1, ".");
 
-    // And read a buffer of 4 bytes
+
+    // Go to 12th byte and read a buffer of 4 bytes
+    f.seek(SeekFrom::Start(12))?;
     let mut utf8buf = vec![0u8; 4];
     f.read_exact(&mut utf8buf)?;
     let mut blender_head_unread;
@@ -167,9 +180,16 @@ pub fn parse_scenes<S>(path: S) -> GenResult<Scenes> where S: Into<String>{
         // Find Scenename
         buf = vec![0u8; 64];
         f.read_exact(&mut buf)?;
+        // Try to create valid utf8 from it and trim all null chars
         let mut scenename = str::from_utf8(&buf)?;
         scenename = scenename.trim_matches(char::from(0));
-        scenes.insert(scenename.to_string(), FrameRange{start, end});
+        // Create a Data struct and insert into scenes
+        scenes.insert(
+            scenename.to_string(), 
+            Data{
+                frames: FrameRange{start, end},
+                version: version.clone()
+            });
 
         // Read for the next round
         utf8buf = vec![0u8; 4];
