@@ -5,71 +5,94 @@ extern crate bender_bouncer;
 
 use docopt::Docopt;
 use colored::*;
-use bender_bouncer::{check_blend, parse_scenes};
+use bender_bouncer::{check_blend};
 
 
 const USAGE: &'static str = "
 bender-bouncer
 
-The bouncer verifies wether one or more files are valid blend files and returns 
-basic information like scene name, start and endframe.
+The bouncer verifies wether one or more files are valid blend files. If so, bouncer
+returns the version of Blender used to create the file.
 
 Usage:
-  bouncer <blendfiles>...
+  bouncer [--only-valid|--only-invalid] [--no-colors] [--basic] <blendfiles>...
+  bouncer --json <blendfile>
   bouncer (-h | --help)
   bouncer --version
 
 Options:
-  -h --help     Show this screen.
-  --version     Show version.
+  -h --help         Show this screen.
+  --version         Show version.
+  --json            Json output
+  --only-valid      Output only valid blendfiles
+  --only-invalid    Output only invalid blendfiles
+  --no-colors       Nomen est omen
+  --basic           Output validity on one line
 ";
 
 #[derive(Debug, Deserialize)]
 struct Args {
     arg_blendfiles: Vec<String>,
+    flag_only_valid: bool,
+    flag_only_invalid: bool,
+    flag_no_colors: bool,
+    flag_basic: bool,
+    flag_json: bool,
+    arg_blendfile: String
 }
 
 fn main() {
     let args: Args = Docopt::new(USAGE)
                             .and_then(|d| d.deserialize())
                             .unwrap_or_else(|e| e.exit());
-    
-    for name in args.arg_blendfiles.iter(){
-        // Check if we are dealing with a valid blend file
-        let valid = match check_blend(&name[..]){
-            Ok(()) => {
-                let success = format!(" ✔ {} ", name).bold().on_green();
-                let message = format!("{}", success);
-                println!("{}", message);
-                true
-            },
-            Err(_e) => {
-                let error = format!(" ✖ {} ", name).bold().on_red();
-                let errorlabel = "ERROR:".to_string().red();
-                let message = format!("{}\n    {}        this seems not to be a valid blend file\n", error, errorlabel);
-                println!("{}", message);
-                false
-            },
-        };
-        // If so, try to get Scene Name, Startframe and Endframe from it
-        if valid {
-            match parse_scenes(&name[..]){
-                Ok(s) => {
-                    for (scenename, data) in s.iter(){
-                        let versionlabel = format!("{}      ", "Version:".green());
-                        let scenelabel = format!("{}   ", "Scene Name:".green());
-                        let framelabel = format!("{}  ", "Frame Range:".green());
-                        println!("    {}{}\n    {}{}\n    {}{}-{} ({} in total)\n", 
-                            versionlabel, data.version,
-                            scenelabel, scenename, 
-                            framelabel, data.frames.start, data.frames.end, data.frames.count());
+
+    // Without --json flags print colourful results for multiple files
+    if !args.flag_json{
+        for path in args.arg_blendfiles.iter(){
+            match check_blend(&path[..]){
+                Ok(version) => {
+                    if !args.flag_only_invalid{
+                        // Success: print path
+                        let mut fname = format!(" ✔ {} ", path).bold().on_green();
+                        if args.flag_no_colors { fname = fname.clear(); }
+                        let message = format!("{}", fname);
+                        println!("{}", message);
+                        if !args.flag_basic{
+                            // Success: print version
+                            let mut versionlabel = format!("{}      ", "Version:").green();
+                            if args.flag_no_colors { versionlabel = versionlabel.clear(); };
+                            println!("    {}{}\n", versionlabel, version,);
+                        }
                     }
                 },
-                Err(e) => {
-                    println!("Error: Couldn't parse file: {:?}", e);
+                Err(_) => {
+                    if !args.flag_only_valid{
+                        // Error: print path
+                        let mut fname = format!(" ✖ {} ", path).bold().on_red();
+                        if args.flag_no_colors{ fname = fname.clear() ;};
+                        println!("{}", fname);
+                        if !args.flag_basic{
+                            // Error: print message
+                            let mut errorlabel = "ERROR:".to_string().red();
+                            if args.flag_no_colors{ errorlabel = errorlabel.clear() ;};
+                            println!("    {}        this seems not to be a valid blend file\n", errorlabel);
+                        }
+                    }
                 }
-            };
-            
+            }
+
+        }
+    }
+
+    // With --json flag just return basic json with validity and version
+    if args.flag_json{
+        match check_blend(&args.arg_blendfile[..]) {
+            Ok(version) => {
+                println!("{{version:{}}}", version);
+            },
+            Err(_) => {
+                println!("{{version:invalid}}");
+            }
         }
 
     }
