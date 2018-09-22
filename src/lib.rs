@@ -32,8 +32,7 @@
 //! ## Installation (CLI tool)
 //! 1. Make sure you have rust and cargo installed (easiest with [rustup](http://rustup.rs))
 //! 2. Clone the repo via `git clone` and go into the repo with `cd bender_bouncer`
-//! 3. run `cargo build --release`
-//! 4. copy the compiled binary `./target/release/bender-bouncer-cli` wherever you like
+//! 3. run `sh install.sh`
 //!
 
 
