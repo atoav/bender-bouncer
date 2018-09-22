@@ -15,19 +15,19 @@ doesn't need a blender executable. This is also much faster than opening the
 
 ### Library Usage
 It can be loaded in a rust library via the public git mirror by putting this in your Cargo.toml:
-```rust
+```
 [dependencies]
 bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
 ```
 To update run
-```rust
+```
 cargo clean
 cargo update
 ```
 
 ### Documentation
 To view the documentation on the different Functions execute
-```rust
+```
 cargo doc --no-deps --open
 ```
 
