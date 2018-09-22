@@ -15,8 +15,7 @@ The bouncer verifies wether one or more files are valid blend files. If so, boun
 returns the version of Blender used to create the file.
 
 Usage:
-  bouncer [--only-valid|--only-invalid] [--no-colors] [--basic] <blendfiles>...
-  bouncer --json <blendfile>
+  bouncer [--json|--only-valid|--only-invalid] [--no-colors] [--basic] <blendfiles>...
   bouncer (-h | --help)
   bouncer --version
 
@@ -66,21 +65,23 @@ fn main() {
                     }
                 },
                 Err(_) => {
-                    if !args.flag_only_valid{
-                        // Error: print path
-                        let mut fname = format!(" ✖ {} ", path).bold().on_red();
-                        if args.flag_no_colors{ fname = fname.clear() ;};
-                        println!("{}", fname);
-                        if !args.flag_basic{
-                            // Error: print message
-                            let mut errorlabel = "ERROR:".to_string().red();
-                            if args.flag_no_colors{ errorlabel = errorlabel.clear() ;};
-                            println!("    {}        this seems not to be a valid blend file\n", errorlabel);
+                    if !args.flag_json{
+                        if !args.flag_only_valid{
+                            // Error: print path
+                            let mut fname = format!(" ✖ {} ", path).bold().on_red();
+                            if args.flag_no_colors{ fname = fname.clear() ;};
+                            println!("{}", fname);
+                            if !args.flag_basic{
+                                // Error: print message
+                                let mut errorlabel = "ERROR:".to_string().red();
+                                if args.flag_no_colors{ errorlabel = errorlabel.clear() ;};
+                                println!("    {}        this seems not to be a valid blend file\n", errorlabel);
+                            }
                         }
                     }
                 }
-            }
 
+            }
         }
     }
 
