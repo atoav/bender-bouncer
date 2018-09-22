@@ -2,8 +2,8 @@
 
 The bouncer has two responsibilities:
 - checking if a file is a valid .blend file
-- collecting basic data about the framerange
-It is a Rust implementation of *blender_render_info.py* that comes bundled with python
+- returning the blend version from the file header
+It is a loose Rust implementation of *blender_render_info.py* that comes bundled with python, and should be the fastest way to check the validity of a big amount of files.
 
 bender-bouncer only reads the binary data of the .blend file and therefore
 doesn't need a blender executable. This is also much faster than opening the

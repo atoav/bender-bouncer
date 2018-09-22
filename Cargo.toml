@@ -5,8 +5,7 @@ authors = ["David Huss <dh@widerstandzwecklos.at>"]
 
 [dependencies]
 docopt = "1"
-serde = "1.0" # if you're using `derive(Deserialize)`
-serde_derive = "1.0" # if you're using `derive(Deserialize)`
+serde = "1.0"
+serde_derive = "1.0"
 colored = "1.6"
 flate2 = "1.0"
-structure = "0.1"
