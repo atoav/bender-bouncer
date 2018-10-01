@@ -15,7 +15,7 @@
 //! It can be loaded in a rust library via the public git mirror by putting this in your Cargo.toml:  
 //! ```ignore
 //! [dependencies]
-//! bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
+//! bender_bouncer = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-bouncer.git" }
 //! ```
 //! To update run
 //! ```ignore

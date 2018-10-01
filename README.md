@@ -17,7 +17,7 @@ doesn't need a blender executable. This is also much faster than opening the
 It can be loaded in a rust library via the public git mirror by putting this in your Cargo.toml:
 ```rust
 [dependencies]
-bender_bouncer = { git = "https://github.com/atoav/bender-bouncer.git" }
+bender_bouncer = { git = "ssh://git@code.hfbk.net:4242/bendercode/bender-bouncer.git" }
 ```
 To update run
 ```rust
