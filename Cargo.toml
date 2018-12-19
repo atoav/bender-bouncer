@@ -5,7 +5,7 @@ authors = ["David Huss <dh@widerstandzwecklos.at>"]
 
 [dependencies]
 docopt = "1"
-serde = "1.0"
-serde_derive = "1.0"
+serde = "1"
+serde_derive = "1"
 colored = "1.6"
 flate2 = "1.0"
