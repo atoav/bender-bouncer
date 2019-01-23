@@ -2,6 +2,7 @@
 name = "bender_bouncer"
 version = "0.1.0"
 authors = ["David Huss <dh@widerstandzwecklos.at>"]
+workspace = ".."
 
 [dependencies]
 docopt = "1"
