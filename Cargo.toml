@@ -1,8 +1,15 @@
 [package]
 name = "bender_bouncer"
 version = "0.1.0"
+license = "MIT"
+readme = "README.md"
 authors = ["David Huss <dh@widerstandzwecklos.at>"]
+description = "As part of the bender renderfarm, the bouncer is a library used by various services in order to validate blendfiles."
 workspace = ".."
+
+[package.metadata.deb]
+extended-description = "As part of the bender renderfarm, the bouncer is a library used by various services in order to validate blendfiles."
+depends = "$auto"
 
 [dependencies]
 docopt = "1"
