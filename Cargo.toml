@@ -1,5 +1,5 @@
 [package]
-name = "bender-bouncer"
+name = "bender_bouncer"
 version = "0.1.1"
 license = "MIT"
 readme = "README.md"
