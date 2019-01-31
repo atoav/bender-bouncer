@@ -1,7 +1,7 @@
 #[macro_use] extern crate serde_derive;
 extern crate docopt;
 extern crate colored;
-extern bender_bouncer;
+extern crate bender_bouncer;
 
 use docopt::Docopt;
 use colored::*;
@@ -9,7 +9,7 @@ use bender_bouncer::{check_blend};
 
 
 const USAGE: &'static str = "
-bender-bouncer
+bender_bouncer
 
 The bouncer verifies wether one or more files are valid blend files. If so, bouncer
 returns the version of Blender used to create the file.
