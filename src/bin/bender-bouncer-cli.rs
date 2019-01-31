@@ -1,11 +1,11 @@
 #[macro_use] extern crate serde_derive;
 extern crate docopt;
 extern crate colored;
-extern crate bender-bouncer;
+extern bender_bouncer;
 
 use docopt::Docopt;
 use colored::*;
-use bender-bouncer::{check_blend};
+use bender_bouncer::{check_blend};
 
 
 const USAGE: &'static str = "
