@@ -36,3 +36,5 @@ cargo doc --no-deps --open
 2. Clone the repo via `git clone` and go into the repo with `cd bender_bouncer`
 3. run `sh install.sh`
 
+
+License: MIT
