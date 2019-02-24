@@ -68,7 +68,7 @@ pub fn validate_basic<S>(path: S) -> GenResult<()> where S: Into<String>{
     let mut f = fs::OpenOptions::new()
                                 .read(true)
                                 .create(false)
-                                .write(false)
+                                .write(true)
                                 .mode(0o775)
                                 .open(path.as_str())?;
 
@@ -102,7 +102,7 @@ pub fn get_version<S>(path: S) -> GenResult<Version> where S: Into<String>{
     let mut f = fs::OpenOptions::new()
                                 .read(true)
                                 .create(false)
-                                .write(false)
+                                .write(true)
                                 .mode(0o775)
                                 .open(path.as_str())?;
 

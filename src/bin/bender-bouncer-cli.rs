@@ -65,18 +65,16 @@ fn main() {
                     }
                 },
                 Err(_) => {
-                    if !args.flag_json{
-                        if !args.flag_only_valid{
-                            // Error: print path
-                            let mut fname = format!(" ✖ {} ", path).bold().on_red();
-                            if args.flag_no_colors{ fname = fname.clear() ;};
-                            println!("{}", fname);
-                            if !args.flag_basic{
-                                // Error: print message
-                                let mut errorlabel = "ERROR:".to_string().red();
-                                if args.flag_no_colors{ errorlabel = errorlabel.clear() ;};
-                                println!("    {}        this seems not to be a valid blend file\n", errorlabel);
-                            }
+                    if !args.flag_json && !args.flag_only_valid {
+                        // Error: print path
+                        let mut fname = format!(" ✖ {} ", path).bold().on_red();
+                        if args.flag_no_colors{ fname = fname.clear() ;};
+                        println!("{}", fname);
+                        if !args.flag_basic{
+                            // Error: print message
+                            let mut errorlabel = "ERROR:".to_string().red();
+                            if args.flag_no_colors{ errorlabel = errorlabel.clear() ;};
+                            println!("    {}        this seems not to be a valid blend file\n", errorlabel);
                         }
                     }
                 }
