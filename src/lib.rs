@@ -43,7 +43,7 @@ use flate2::read::GzDecoder;
 use std::str;
 use std::fs;
 use std::io::SeekFrom;
-// use std::os::unix::fs::OpenOptionsExt;
+use std::os::unix::fs::OpenOptionsExt;
 
 type GenError = Box<std::error::Error>;
 type GenResult<T> = Result<T, GenError>;
@@ -65,7 +65,11 @@ pub fn check_blend<S>(path: S) -> GenResult<Version> where S: Into<String> {
 /// Error if something is wonky
 pub fn validate_basic<S>(path: S) -> GenResult<()> where S: Into<String>{
     let path = path.into();
-    let mut f = fs::File::open(path.as_str())?;
+    let mut f = fs::OpenOptions::new()
+                                .create(false)
+                                .write(false)
+                                .mode(0o775)
+                                .open(path.as_str())?;
 
     // read up to 7 bytes from the file header
     let mut head = vec![0u8; 7];
@@ -94,7 +98,11 @@ type Version = String;
 /// not sure, check for validity with the `bender_bouncer::check_blend()` function
 pub fn get_version<S>(path: S) -> GenResult<Version> where S: Into<String>{
     let path = path.into();
-    let mut f = fs::File::open(path.as_str())?;
+    let mut f = fs::OpenOptions::new()
+                                .create(false)
+                                .write(false)
+                                .mode(0o775)
+                                .open(path.as_str())?;
 
     // read up to 32 bytes from the file header
     let mut buf = vec![0u8; 32];
