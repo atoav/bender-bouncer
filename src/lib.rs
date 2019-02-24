@@ -66,6 +66,7 @@ pub fn check_blend<S>(path: S) -> GenResult<Version> where S: Into<String> {
 pub fn validate_basic<S>(path: S) -> GenResult<()> where S: Into<String>{
     let path = path.into();
     let mut f = fs::OpenOptions::new()
+                                .read(true)
                                 .create(false)
                                 .write(false)
                                 .mode(0o775)
@@ -99,6 +100,7 @@ type Version = String;
 pub fn get_version<S>(path: S) -> GenResult<Version> where S: Into<String>{
     let path = path.into();
     let mut f = fs::OpenOptions::new()
+                                .read(true)
                                 .create(false)
                                 .write(false)
                                 .mode(0o775)
