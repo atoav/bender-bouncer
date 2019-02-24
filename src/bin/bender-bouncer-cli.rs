@@ -8,7 +8,7 @@ use colored::*;
 use bender_bouncer::{check_blend};
 
 
-const USAGE: &'static str = "
+const USAGE: &str = "
 bender_bouncer
 
 The bouncer verifies wether one or more files are valid blend files. If so, bouncer

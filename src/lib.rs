@@ -41,8 +41,9 @@ extern crate flate2;
 use std::io::prelude::*;
 use flate2::read::GzDecoder;
 use std::str;
-use std::fs::File;
+use std::fs;
 use std::io::SeekFrom;
+use std::os::unix::fs::OpenOptionsExt;
 
 type GenError = Box<std::error::Error>;
 type GenResult<T> = Result<T, GenError>;
@@ -64,14 +65,18 @@ pub fn check_blend<S>(path: S) -> GenResult<Version> where S: Into<String> {
 /// Error if something is wonky
 pub fn validate_basic<S>(path: S) -> GenResult<()> where S: Into<String>{
     let path = path.into();
-    let mut f = File::open(path.as_str())?;
+    let mut f = fs::OpenOptions::new()
+                                .create(true)
+                                .write(true)
+                                .mode(0o775)
+                                .open(path.as_str())?;
 
     // read up to 7 bytes from the file header
     let mut head = vec![0u8; 7];
     f.read_exact(&mut head)?;
 
     // Check for gzip magic on first two bytes and unpack if needed
-    if &head[0..2] == &[0x1f, 0x8b]{
+    if head[0..2] == [0x1f, 0x8b]{
         let mut gz = GzDecoder::new(&head[..]);
         // empty the buffer and overwrite it with the decompressed version
         let mut head = vec![0u8; 7];
@@ -93,14 +98,18 @@ type Version = String;
 /// not sure, check for validity with the `bender_bouncer::check_blend()` function
 pub fn get_version<S>(path: S) -> GenResult<Version> where S: Into<String>{
     let path = path.into();
-    let mut f = File::open(path.as_str())?;
+    let mut f = fs::OpenOptions::new()
+                                .create(true)
+                                .write(true)
+                                .mode(0o775)
+                                .open(path.as_str())?;
 
     // read up to 32 bytes from the file header
     let mut buf = vec![0u8; 32];
     f.read_exact(&mut buf)?;
 
     // Check for gzip magic on first two bytes and unpack if needed
-    if &buf[0..2] == &[0x1f, 0x8b]{
+    if buf[0..2] == [0x1f, 0x8b]{
         let mut gz = GzDecoder::new(&buf[..]);
         // empty the buffer and overwrite it with the decompressed version
         let mut buf = vec![0u8; 32];
