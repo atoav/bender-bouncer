@@ -45,7 +45,7 @@ use std::fs;
 use std::io::SeekFrom;
 use std::os::unix::fs::OpenOptionsExt;
 
-type GenError = Box<std::error::Error>;
+type GenError = Box<dyn std::error::Error>;
 type GenResult<T> = Result<T, GenError>;
 
 
