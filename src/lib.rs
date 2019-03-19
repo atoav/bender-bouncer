@@ -43,6 +43,8 @@ use flate2::read::GzDecoder;
 use std::str;
 use std::fs;
 use std::io::SeekFrom;
+
+#[cfg(unix)]
 use std::os::unix::fs::OpenOptionsExt;
 
 type GenError = Box<dyn std::error::Error>;
@@ -65,12 +67,22 @@ pub fn check_blend<S>(path: S) -> GenResult<Version> where S: Into<String> {
 /// Error if something is wonky
 pub fn validate_basic<S>(path: S) -> GenResult<()> where S: Into<String>{
     let path = path.into();
-    let mut f = fs::OpenOptions::new()
-                                .read(true)
-                                .create(false)
-                                .write(true)
-                                .mode(0o775)
-                                .open(path.as_str())?;
+
+    let mut f = if cfg!(unix) {
+        fs::OpenOptions::new()
+                        .read(true)
+                        .create(false)
+                        .write(true)
+                        .mode(0o775)
+                        .open(path.as_str())?
+
+    }else{
+        fs::OpenOptions::new()
+                        .read(true)
+                        .create(false)
+                        .write(true)
+                        .open(path.as_str())?
+    };
 
     // read up to 7 bytes from the file header
     let mut head = vec![0u8; 7];
